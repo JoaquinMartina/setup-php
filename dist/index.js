@@ -2312,6 +2312,61 @@ module.exports = require("events");
 
 /***/ }),
 
+/***/ 615:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.addSAPI = void 0;
+const utils = __importStar(__webpack_require__(163));
+/**
+ * Function to set sapi
+ *
+ * @param sapi_csv
+ * @param os_version
+ */
+async function addSAPI(sapi_csv, os_version) {
+    const sapi_list = await utils.CSVArray(sapi_csv);
+    let script = '\n' + (await utils.stepLog('Setup SAPI', os_version));
+    await utils.asyncForEach(sapi_list, async function (sapi) {
+        sapi = sapi.toLowerCase();
+        switch (os_version) {
+            case 'linux':
+            case 'darwin':
+                script += 'add_sapi ' + sapi + '\n';
+                break;
+            case 'win32':
+                script += 'Add-Sapi ' + sapi + '\n';
+                break;
+        }
+    });
+    return script;
+}
+exports.addSAPI = addSAPI;
+
+
+/***/ }),
+
 /***/ 622:
 /***/ (function(module) {
 
@@ -2582,6 +2637,7 @@ const core = __importStar(__webpack_require__(470));
 const config = __importStar(__webpack_require__(641));
 const coverage = __importStar(__webpack_require__(635));
 const extensions = __importStar(__webpack_require__(911));
+const sapi = __importStar(__webpack_require__(615));
 const tools = __importStar(__webpack_require__(534));
 const utils = __importStar(__webpack_require__(163));
 /**
@@ -2600,7 +2656,11 @@ async function getScript(filename, version, os_version) {
     const ini_values_csv = await utils.getInput('ini-values', false);
     const coverage_driver = await utils.getInput('coverage', false);
     const tools_csv = await utils.getInput('tools', false);
+    const sapi_csv = await utils.getInput('sapi', false);
     let script = await utils.readScript(filename);
+    if (sapi_csv) {
+        script += await sapi.addSAPI(sapi_csv, os_version);
+    }
     script += await tools.addTools(tools_csv, version, os_version);
     if (extension_csv) {
         script += await extensions.addExtension(extension_csv, version, os_version);

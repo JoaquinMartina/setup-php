@@ -29,6 +29,25 @@ add_ppa() {
   fi
 }
 
+# Function to add SAPI
+add_sapi() {
+  sapi=$1
+  status='false'
+  if [ "$sapi" != "cli" ]; then
+    case "$version" in
+      "${old_versions:?}"|"${nightly_versions:?}")
+          switch_sapi "$sapi"
+          ;;
+      *)
+        sudo cp "${dist}"/../src/scripts/sapi.sh /usr/bin/switch_sapi
+        sudo chmod a+x /usr/bin/switch_sapi
+        switch_sapi "$sapi" "$version" "${dist}"/../src/configs
+          ;;
+    esac
+  fi
+  add_log "${tick:?}" "$sapi" "Added"
+}
+
 # Function to update the package lists.
 update_lists() {
   if [ ! -e /tmp/setup_php ]; then
