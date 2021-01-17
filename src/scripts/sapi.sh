@@ -47,7 +47,7 @@ switch_sapi() {
       install_apache2
       install_packages php"${version:?}"-cgi -y
       sudo cp "$conf_dir"/default_apache /etc/apache2/sites-available/000-default.conf
-      echo "Action application/x-httpd-php /cgi-bin/php${version:?}" >> /etc/apache2/conf-available/php"${version:?}"-cgi.conf
+      echo "Action application/x-httpd-php /cgi-bin/php${version:?}" | sudo tee -a /etc/apache2/conf-available/php"${version:?}"-cgi.conf
       sudo a2dismod php"${version:?}" mpm_event 2>/dev/null || true
       sudo a2enmod mpm_prefork actions cgi
       sudo a2disconf php"${version:?}"-fpm 2>/dev/null || true
@@ -56,6 +56,7 @@ switch_sapi() {
       ;;
     fpm:nginx)
       install_nginx
+      install_packages php"${version:?}"-fpm -y
       sudo cp "$conf_dir"/default_nginx /etc/nginx/sites-available/default
       sudo sed -i "s/PHP_VERSION/${version:?}/" /etc/nginx/sites-available/default
       sudo service nginx restart
