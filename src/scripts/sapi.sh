@@ -55,7 +55,7 @@ switch_sapi() {
       ;;
     fpm:nginx)
       install_nginx
-      sudo cp "$conf_dir"/default_nginx /etc/apache2/sites-available/default
+      sudo cp "$conf_dir"/default_nginx /etc/nginx/sites-available/default
       sudo service nginx restart
       ;;
     apache*)
