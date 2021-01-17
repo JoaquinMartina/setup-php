@@ -34,16 +34,15 @@ add_sapi() {
   sapi=$1
   status='false'
   if [ "$sapi" != "cli" ]; then
-    case "$version" in
-      "${old_versions:?}"|"${nightly_versions:?}")
-          switch_sapi "$sapi"
-          ;;
-      *)
-        sudo cp "${dist}"/../src/scripts/sapi.sh /usr/bin/switch_sapi
-        sudo chmod a+x /usr/bin/switch_sapi
-        switch_sapi "$sapi" "$version" "${dist}"/../src/configs
-          ;;
-    esac
+    if [[ "$version" =~ ${old_versions:?}|${nightly_versions:?} ]]; then
+      echo 'old or nightly'
+      switch_sapi "$sapi"
+    else
+      echo 'active'
+      sudo cp "${dist}"/../src/scripts/sapi.sh /usr/bin/switch_sapi
+      sudo chmod a+x /usr/bin/switch_sapi
+      switch_sapi "$sapi" "$version" "${dist}"/../src/configs
+    fi
   fi
   add_log "${tick:?}" "$sapi" "Added"
 }
