@@ -5,6 +5,7 @@ php=$2
 conf_dir=$3
 debconf_fix=DEBIAN_FRONTEND=noninteractive
 install_apache2() {
+  sudo mkdir -p /var/www/html
   sudo service nginx stop 2>/dev/null || true
   if ! command -v apache2 >/dev/null; then
     sudo "$debconf_fix" apt-fast install apache2-bin apache2 -y;
@@ -18,6 +19,7 @@ install_apache2() {
 }
 
 install_nginx() {
+  sudo mkdir -p /var/www/html
   sudo service apache2 stop 2>/dev/null || true
   if ! command -v nginx >/dev/null; then
     sudo "$debconf_fix" apt-fast install nginx -y
